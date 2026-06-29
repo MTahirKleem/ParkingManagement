@@ -536,5 +536,5 @@ hourly
 ```javascript
 db.pricing_rules.createIndex({ vehicle_type: 1 })
 db.pricing_rules.createIndex({ is_active: 1 })
-db.pricing_rules.createIndex({ vehicle_type: 1,
+db.pricing_rules.createIndex({ vehicle_type: 1, is_active: 1 })
 ```
