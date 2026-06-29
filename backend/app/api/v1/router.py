@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 
+from app.database.mongodb import get_database
+
 api_router = APIRouter()
 
 
@@ -10,6 +12,25 @@ async def health_check():
         "message": "ParkingManagement API is running",
         "data": {
             "service": "backend",
-            "status": "healthy"
-        }
+            "status": "healthy",
+        },
+    }
+
+
+@api_router.get("/health/database")
+async def database_health_check():
+    database = get_database()
+
+    await database.command("ping")
+
+    collections = await database.list_collection_names()
+
+    return {
+        "success": True,
+        "message": "MongoDB connection is healthy",
+        "data": {
+            "database": database.name,
+            "status": "connected",
+            "collections": collections,
+        },
     }
