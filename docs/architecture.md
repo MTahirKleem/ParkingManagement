@@ -1,8 +1,8 @@
-# ParkFlow Architecture
+# ParkingManagement Architecture
 
 ## 1. Project Overview
 
-ParkFlow is a modern Parking Management System for small and medium parking operations such as shopping malls, hospitals, residential societies, schools, office buildings, and private parking lots.
+ParkingManagement is a modern Parking Management System for small and medium parking operations such as shopping malls, hospitals, residential societies, schools, office buildings, and private parking lots.
 
 The system is designed as a production-ready MVP with a clean architecture. The first version focuses on the core parking workflow:
 
@@ -21,7 +21,7 @@ OCR, camera integration, online payments, boom barriers, RFID, and multi-branch 
 
 ## 2. Architecture Type
 
-ParkFlow Version 1 will be built as:
+ParkingManagement Version 1 will be built as:
 
 ```text
 Single-business MVP with SaaS-ready architecture
@@ -117,7 +117,7 @@ Repository + Service Pattern
 
 ```text
 MongoDB
-Database name: parkflow
+Database name: ParkingManagement
 ```
 
 Development database:
@@ -393,7 +393,7 @@ types/
 
 ## 12. User Roles
 
-ParkFlow MVP has two roles.
+ParkingManagement MVP has two roles.
 
 ```text
 admin
@@ -711,7 +711,7 @@ This separation makes pricing easier to update later.
 
 ## 22. Pricing Modes
 
-ParkFlow MVP should support two pricing modes:
+ParkingManagement MVP should support two pricing modes:
 
 ```text
 fixed
@@ -920,10 +920,10 @@ Configuration should be centralized using environment variables.
 Backend environment variables:
 
 ```env
-APP_NAME=ParkFlow
+APP_NAME=ParkingManagement
 ENVIRONMENT=development
 MONGO_URI=mongodb://localhost:27017
-MONGO_DB_NAME=parkflow
+MONGO_DB_NAME=ParkingManagement
 JWT_SECRET_KEY=change-this-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
@@ -985,7 +985,7 @@ The project should follow these rules:
 
 ## 33. Final Architecture Summary
 
-ParkFlow MVP will be built as a clean full-stack application.
+ParkingManagement MVP will be built as a clean full-stack application.
 
 ```text
 Frontend:
