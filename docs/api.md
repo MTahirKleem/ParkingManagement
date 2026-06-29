@@ -1,75 +1,91 @@
 
-# ParkingManagement API Contract
+# Phase 4 – ParkingManagement REST API Design
 
-## 1. API Overview
+## 1. Phase Goal
 
-This document defines the REST API contract for the ParkingManagement backend.
+The goal of Phase 4 is to finalize the REST API contract before writing backend code.
 
-The backend is built with FastAPI and exposes APIs for:
+This phase defines:
 
-* Authentication
-* Current user profile
-* Guard user management
-* Vehicle entry
-* Vehicle exit
-* Vehicle search
-* Parking history
-* Pricing rules
-* Dashboard
-* Reports
-* Settings
-* Audit logs
-* OCR later
+* API base URL
+* Authentication method
+* Role-based access rules
+* Request body structure
+* Response body structure
+* Error response format
+* Endpoint list
+* Business rules per endpoint
+* Implementation order
 
-The API should follow a clean layered backend architecture:
+No FastAPI routes should be written before this contract is finalized.
+
+## 2. API Base URL
+
+Local development backend URL:
 
 ```text
-API Router
-    ↓
-Service Layer
-    ↓
-Repository Layer
-    ↓
-MongoDB
+http://localhost:8000
 ```
 
-Routers should stay thin. Business logic should stay inside services. Database queries should stay inside repositories.
+API version prefix:
 
-## 2. Base URL
+```text
+/api/v1
+```
 
-Development base URL:
+Full API base URL:
 
 ```text
 http://localhost:8000/api/v1
 ```
 
-Frontend development URL:
+## 3. API Design Rules
 
-```text
-http://localhost:3000
-```
+All APIs should follow these rules:
 
-## 3. Authentication Method
+* Use REST-style endpoint naming.
+* Use JSON request bodies.
+* Use JSON responses.
+* Use JWT authentication for protected routes.
+* Use role-based authorization.
+* Keep route handlers thin.
+* Put business logic in services.
+* Put database operations in repositories.
+* Validate request input with Pydantic schemas.
+* Return consistent response formats.
+* Never return password hashes.
+* Never expose JWT secrets.
+* Use soft delete for important business records.
 
-The API uses JWT authentication.
+## 4. Authentication Method
 
-Protected endpoints require:
+Protected APIs require JWT authentication.
+
+Header format:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
-JWT payload:
+JWT payload should contain:
 
 ```json
 {
-  "sub": "66a000000000000000000001",
+  "sub": "user_id",
   "role": "admin",
   "exp": 1760000000
 }
 ```
 
-## 4. Roles
+Where:
+
+```text
+sub = logged-in user id
+role = admin or guard
+exp = token expiry timestamp
+```
+
+## 5. Roles
 
 ParkingManagement MVP has two roles:
 
@@ -78,35 +94,39 @@ admin
 guard
 ```
 
-## 5. Role Permissions Summary
+## 6. Role Access Summary
 
-| Module                    | Admin | Guard |
-| ------------------------- | ----: | ----: |
-| Login                     |   Yes |   Yes |
-| View own profile          |   Yes |   Yes |
-| Create guards             |   Yes |    No |
-| Update guards             |   Yes |    No |
-| Delete guards             |   Yes |    No |
-| Reset guard password      |   Yes |    No |
-| Add vehicle entry         |   Yes |   Yes |
-| Complete vehicle exit     |   Yes |   Yes |
-| Search active vehicles    |   Yes |   Yes |
-| Search completed vehicles |   Yes |   Yes |
-| View parking history      |   Yes |   Yes |
-| Edit parking record       |   Yes |    No |
-| Delete parking record     |   Yes |    No |
-| View admin dashboard      |   Yes |    No |
-| View guard dashboard      |   Yes |   Yes |
-| Manage pricing            |   Yes |    No |
-| View reports              |   Yes |    No |
-| Export PDF                |   Yes |    No |
-| Export Excel              |   Yes |    No |
-| Manage settings           |   Yes |    No |
-| View audit logs           |   Yes |    No |
+| Module                | Admin | Guard |
+| --------------------- | ----: | ----: |
+| Login                 |   Yes |   Yes |
+| Current user profile  |   Yes |   Yes |
+| Create guard          |   Yes |    No |
+| View guards           |   Yes |    No |
+| Update guard          |   Yes |    No |
+| Delete guard          |   Yes |    No |
+| Reset guard password  |   Yes |    No |
+| Create vehicle entry  |   Yes |   Yes |
+| Complete vehicle exit |   Yes |   Yes |
+| Search vehicles       |   Yes |   Yes |
+| View active vehicles  |   Yes |   Yes |
+| View parking history  |   Yes |   Yes |
+| Edit parking record   |   Yes |    No |
+| Delete parking record |   Yes |    No |
+| View admin dashboard  |   Yes |    No |
+| View guard dashboard  |   Yes |   Yes |
+| View pricing          |   Yes |   Yes |
+| Update pricing        |   Yes |    No |
+| View reports          |   Yes |    No |
+| Export PDF            |   Yes |    No |
+| Export Excel          |   Yes |    No |
+| View settings         |   Yes |   Yes |
+| Update settings       |   Yes |    No |
+| View audit logs       |   Yes |    No |
+| OCR later             |   Yes |   Yes |
 
-## 6. Standard Success Response
+## 7. Standard Success Response
 
-All API responses should follow a consistent shape.
+Single object response:
 
 ```json
 {
@@ -116,7 +136,7 @@ All API responses should follow a consistent shape.
 }
 ```
 
-For list responses:
+List response:
 
 ```json
 {
@@ -132,7 +152,7 @@ For list responses:
 }
 ```
 
-## 7. Standard Error Response
+## 8. Standard Error Response
 
 ```json
 {
@@ -156,21 +176,21 @@ Example:
 }
 ```
 
-## 8. Common HTTP Status Codes
+## 9. HTTP Status Codes
 
 | Status Code | Meaning               |
 | ----------: | --------------------- |
-|         200 | Success               |
-|         201 | Created               |
+|         200 | Request successful    |
+|         201 | Resource created      |
 |         400 | Bad request           |
 |         401 | Unauthorized          |
 |         403 | Forbidden             |
-|         404 | Not found             |
+|         404 | Resource not found    |
 |         409 | Conflict              |
 |         422 | Validation error      |
 |         500 | Internal server error |
 
-## 9. Common Error Codes
+## 10. Common Error Codes
 
 ```text
 INVALID_CREDENTIALS
@@ -191,9 +211,87 @@ SETTINGS_NOT_FOUND
 INTERNAL_SERVER_ERROR
 ```
 
-## 10. Auth APIs
+## 11. Endpoint Summary
 
-## 10.1 Login
+## Auth APIs
+
+```text
+POST /auth/login
+GET /auth/me
+POST /auth/refresh
+```
+
+## User APIs
+
+```text
+POST /users
+GET /users
+GET /users/{user_id}
+PUT /users/{user_id}
+DELETE /users/{user_id}
+POST /users/{user_id}/reset-password
+```
+
+## Parking APIs
+
+```text
+POST /parking/entry
+POST /parking/{record_id}/exit
+GET /parking/active
+GET /parking/history
+GET /parking/search
+GET /parking/{record_id}
+PUT /parking/{record_id}
+DELETE /parking/{record_id}
+```
+
+## Pricing APIs
+
+```text
+GET /pricing
+PUT /pricing/{pricing_id}
+```
+
+## Dashboard APIs
+
+```text
+GET /dashboard/admin
+GET /dashboard/guard
+```
+
+## Report APIs
+
+```text
+GET /reports/daily
+GET /reports/weekly
+GET /reports/monthly
+GET /reports/custom
+GET /reports/export/pdf
+GET /reports/export/excel
+```
+
+## Settings APIs
+
+```text
+GET /settings
+PUT /settings
+```
+
+## Audit Log APIs
+
+```text
+GET /audit-logs
+```
+
+## OCR APIs Later
+
+```text
+POST /ocr/plate
+```
+
+# 12. Auth APIs
+
+## 12.1 Login
 
 Endpoint:
 
@@ -244,8 +342,9 @@ Business rules:
 * On successful login, update `last_login_at`.
 * Create audit log with action `USER_LOGIN`.
 * On failed login, create audit log with action `USER_LOGIN_FAILED`.
+* Never return password hash.
 
-## 10.2 Get Current User
+## 12.2 Get Current User
 
 Endpoint:
 
@@ -283,7 +382,7 @@ Response:
 }
 ```
 
-## 10.3 Refresh Token
+## 12.3 Refresh Token
 
 Endpoint:
 
@@ -297,9 +396,9 @@ Access:
 Admin, Guard
 ```
 
-Note:
+MVP note:
 
-For MVP, refresh token can be skipped initially. The system can start with access token only and add refresh tokens later.
+Refresh token can be skipped initially. The first implementation can use access token only.
 
 Response:
 
@@ -314,11 +413,11 @@ Response:
 }
 ```
 
-## 11. User APIs
+# 13. User APIs
 
-User APIs are mainly for Admin to manage Guard accounts.
+User APIs are mainly used by Admin to manage Guard accounts.
 
-## 11.1 Create Guard
+## 13.1 Create Guard
 
 Endpoint:
 
@@ -371,7 +470,7 @@ Business rules:
 * Default status should be `active`.
 * Create audit log with action `USER_CREATED`.
 
-## 11.2 Get Users
+## 13.2 Get Users
 
 Endpoint:
 
@@ -421,7 +520,7 @@ Response:
 }
 ```
 
-## 11.3 Get User By ID
+## 13.3 Get User By ID
 
 Endpoint:
 
@@ -455,7 +554,7 @@ Response:
 }
 ```
 
-## 11.4 Update User
+## 13.4 Update User
 
 Endpoint:
 
@@ -500,11 +599,11 @@ Response:
 Business rules:
 
 * Only Admin can update users.
-* Email should not be changed in MVP unless required later.
-* Admin cannot accidentally delete the only Admin account.
+* Email should not be changed in MVP.
+* Password cannot be updated from this endpoint.
 * Create audit log with action `USER_UPDATED`.
 
-## 11.5 Delete User
+## 13.5 Delete User
 
 Endpoint:
 
@@ -538,7 +637,7 @@ Business rules:
 * Deleted users cannot log in.
 * Create audit log with action `USER_DELETED`.
 
-## 11.6 Reset User Password
+## 13.6 Reset User Password
 
 Endpoint:
 
@@ -578,9 +677,9 @@ Business rules:
 * Never return password or password hash.
 * Create audit log with action `USER_PASSWORD_RESET`.
 
-## 12. Parking APIs
+# 14. Parking APIs
 
-## 12.1 Create Vehicle Entry
+## 14.1 Create Vehicle Entry
 
 Endpoint:
 
@@ -635,7 +734,7 @@ Business rules:
 * Same active normalized plate number cannot exist twice.
 * Create audit log with action `VEHICLE_ENTRY_CREATED`.
 
-## 12.2 Complete Vehicle Exit
+## 14.2 Complete Vehicle Exit
 
 Endpoint:
 
@@ -696,7 +795,7 @@ Business rules:
 * Set status to `completed`.
 * Create audit log with action `VEHICLE_EXIT_COMPLETED`.
 
-## 12.3 Get Active Vehicles
+## 14.3 Get Active Vehicles
 
 Endpoint:
 
@@ -748,7 +847,7 @@ Response:
 }
 ```
 
-## 12.4 Get Parking History
+## 14.4 Get Parking History
 
 Endpoint:
 
@@ -807,7 +906,7 @@ Response:
 }
 ```
 
-## 12.5 Search Parking Records
+## 14.5 Search Parking Records
 
 Endpoint:
 
@@ -851,10 +950,10 @@ Response:
 Business rules:
 
 * Search should use normalized plate number.
-* User can search `LEA-1234`, `LEA 1234`, `lea1234`, or `LEA1234`.
-* All should match the same normalized value.
+* Inputs like `LEA-1234`, `LEA 1234`, `lea1234`, and `LEA1234` should match the same record.
+* Deleted records should not appear in normal search results.
 
-## 12.6 Get Parking Record By ID
+## 14.6 Get Parking Record By ID
 
 Endpoint:
 
@@ -892,14 +991,6 @@ Response:
       "received_by": "66a000000000000000000002",
       "received_at": "2026-06-29T13:31:00Z"
     },
-    "pricing_snapshot": {
-      "pricing_rule_id": "66b000000000000000000002",
-      "pricing_type": "hourly",
-      "base_hours": 2,
-      "base_fee": 100,
-      "extra_hour_fee": 50,
-      "grace_minutes": 10
-    },
     "created_by": "66a000000000000000000002",
     "completed_by": "66a000000000000000000002",
     "created_at": "2026-06-29T10:00:00Z",
@@ -908,7 +999,7 @@ Response:
 }
 ```
 
-## 12.7 Update Parking Record
+## 14.7 Update Parking Record
 
 Endpoint:
 
@@ -957,7 +1048,7 @@ Business rules:
 * If plate number changes, normalized plate number must also update.
 * Admin updates must create audit log with action `PARKING_RECORD_UPDATED`.
 
-## 12.8 Delete Parking Record
+## 14.8 Delete Parking Record
 
 Endpoint:
 
@@ -991,9 +1082,9 @@ Business rules:
 * Deleted records should not appear in revenue reports.
 * Create audit log with action `PARKING_RECORD_DELETED`.
 
-## 13. Pricing APIs
+# 15. Pricing APIs
 
-## 13.1 Get Pricing Rules
+## 15.1 Get Pricing Rules
 
 Endpoint:
 
@@ -1029,12 +1120,12 @@ Response:
     {
       "id": "66b000000000000000000002",
       "vehicle_type": "car",
-      "pricing_type": "hourly",
-      "fixed_rate": null,
-      "base_hours": 2,
-      "base_fee": 100,
-      "extra_hour_fee": 50,
-      "grace_minutes": 10,
+      "pricing_type": "fixed",
+      "fixed_rate": 100,
+      "base_hours": null,
+      "base_fee": null,
+      "extra_hour_fee": null,
+      "grace_minutes": 0,
       "currency": "PKR",
       "is_active": true
     }
@@ -1042,7 +1133,7 @@ Response:
 }
 ```
 
-## 13.2 Update Pricing Rule
+## 15.2 Update Pricing Rule
 
 Endpoint:
 
@@ -1117,9 +1208,9 @@ Business rules:
 * Existing completed records should keep their old fee.
 * Create audit log with action `PRICING_RULE_UPDATED`.
 
-## 14. Dashboard APIs
+# 16. Dashboard APIs
 
-## 14.1 Admin Dashboard
+## 16.1 Admin Dashboard
 
 Endpoint:
 
@@ -1186,7 +1277,7 @@ Business rules:
 * Occupancy uses `settings.parking_capacity`.
 * Recent transactions use completed records sorted by exit time.
 
-## 14.2 Guard Dashboard
+## 16.2 Guard Dashboard
 
 Endpoint:
 
@@ -1229,9 +1320,9 @@ Business rules:
 * Guard should not see full revenue analytics in MVP.
 * Guard can see operational counts and recent entries.
 
-## 15. Report APIs
+# 17. Report APIs
 
-## 15.1 Daily Report
+## 17.1 Daily Report
 
 Endpoint:
 
@@ -1278,7 +1369,7 @@ Response:
 }
 ```
 
-## 15.2 Weekly Report
+## 17.2 Weekly Report
 
 Endpoint:
 
@@ -1322,7 +1413,7 @@ Response:
 }
 ```
 
-## 15.3 Monthly Report
+## 17.3 Monthly Report
 
 Endpoint:
 
@@ -1368,7 +1459,7 @@ Response:
 }
 ```
 
-## 15.4 Custom Date Range Report
+## 17.4 Custom Date Range Report
 
 Endpoint:
 
@@ -1425,7 +1516,7 @@ Response:
 }
 ```
 
-## 15.5 Export PDF
+## 17.5 Export PDF
 
 Endpoint:
 
@@ -1446,7 +1537,7 @@ report_type=daily
 date=2026-06-29
 ```
 
-Alternative query for range:
+Alternative:
 
 ```text
 report_type=custom
@@ -1466,7 +1557,7 @@ Business rules:
 * Export should use report data from Report Service.
 * Create audit log with action `EXPORT_PDF_GENERATED`.
 
-## 15.6 Export Excel
+## 17.6 Export Excel
 
 Endpoint:
 
@@ -1500,9 +1591,9 @@ Business rules:
 * Export should use report data from Report Service.
 * Create audit log with action `EXPORT_EXCEL_GENERATED`.
 
-## 16. Settings APIs
+# 18. Settings APIs
 
-## 16.1 Get Settings
+## 18.1 Get Settings
 
 Endpoint:
 
@@ -1536,7 +1627,7 @@ Response:
 }
 ```
 
-## 16.2 Update Settings
+## 18.2 Update Settings
 
 Endpoint:
 
@@ -1594,9 +1685,9 @@ Business rules:
 * Timezone defaults to `Asia/Karachi`.
 * Create audit log with action `SETTINGS_UPDATED`.
 
-## 17. Audit Log APIs
+# 19. Audit Log APIs
 
-## 17.1 Get Audit Logs
+## 19.1 Get Audit Logs
 
 Endpoint:
 
@@ -1660,13 +1751,13 @@ Business rules:
 * Audit logs should not be edited or deleted from the UI.
 * Sensitive data should not be stored in metadata.
 
-## 18. OCR APIs Later
+# 20. OCR APIs Later
 
 OCR is not required for the first implementation.
 
 Manual plate entry must always work.
 
-## 18.1 Detect Plate From Image
+## 20.1 Detect Plate From Image
 
 Endpoint:
 
@@ -1709,115 +1800,61 @@ Business rules:
 * OCR data should be stored inside parking record only if used.
 * Manual entry must remain available.
 
-## 19. API Endpoint Summary
-
-## Auth
-
-```text
-POST /auth/login
-GET /auth/me
-POST /auth/refresh
-```
-
-## Users
-
-```text
-POST /users
-GET /users
-GET /users/{user_id}
-PUT /users/{user_id}
-DELETE /users/{user_id}
-POST /users/{user_id}/reset-password
-```
-
-## Parking
-
-```text
-POST /parking/entry
-POST /parking/{record_id}/exit
-GET /parking/active
-GET /parking/history
-GET /parking/search
-GET /parking/{record_id}
-PUT /parking/{record_id}
-DELETE /parking/{record_id}
-```
-
-## Pricing
-
-```text
-GET /pricing
-PUT /pricing/{pricing_id}
-```
-
-## Dashboard
-
-```text
-GET /dashboard/admin
-GET /dashboard/guard
-```
-
-## Reports
-
-```text
-GET /reports/daily
-GET /reports/weekly
-GET /reports/monthly
-GET /reports/custom
-GET /reports/export/pdf
-GET /reports/export/excel
-```
-
-## Settings
-
-```text
-GET /settings
-PUT /settings
-```
-
-## Audit Logs
-
-```text
-GET /audit-logs
-```
-
-## OCR Later
-
-```text
-POST /ocr/plate
-```
-
-## 20. Implementation Order
+# 21. API Implementation Order
 
 Implement APIs in this order:
 
 ```text
-1. Auth APIs
-2. Current user API
-3. User management APIs
-4. Pricing APIs
-5. Parking entry API
-6. Parking exit API
-7. Active vehicle API
-8. Parking history and search APIs
-9. Dashboard APIs
-10. Report APIs
-11. Export APIs
-12. Settings APIs
-13. Audit log APIs
-14. OCR API later
+1. Health check API
+2. Auth login API
+3. Current user API
+4. User management APIs
+5. Pricing APIs
+6. Parking entry API
+7. Parking exit API
+8. Active vehicle API
+9. Parking history API
+10. Parking search API
+11. Dashboard APIs
+12. Report APIs
+13. Export APIs
+14. Settings APIs
+15. Audit log APIs
+16. OCR API later
 ```
 
-## 21. Final Notes
+# 22. Phase 4 Completion Checklist
 
-The ParkingManagement API should be simple, predictable, and easy for the Next.js frontend to consume.
+Phase 4 is complete when:
 
-The most important API rules are:
+```text
+Base URL is finalized
+Auth method is finalized
+Role access is finalized
+Response format is finalized
+Error format is finalized
+Auth endpoints are finalized
+User endpoints are finalized
+Parking endpoints are finalized
+Pricing endpoints are finalized
+Dashboard endpoints are finalized
+Report endpoints are finalized
+Settings endpoints are finalized
+Audit log endpoints are finalized
+OCR future endpoint is documented
+Implementation order is finalized
+```
 
+# 23. Final API Summary
+
+ParkingManagement API should be simple, predictable, and easy for the frontend to consume.
+
+Core rules:
+
+* Use `/api/v1` prefix.
 * Use JWT authentication.
 * Protect routes by role.
-* Keep response format consistent.
-* Normalize plate numbers for search.
+* Normalize plate numbers.
 * Prevent duplicate active vehicles.
 * Calculate fee only during vehicle exit.
 * Store cash payment inside parking record.
@@ -1825,5 +1862,4 @@ The most important API rules are:
 * Count revenue only from completed records with cash received.
 * Keep OCR optional.
 * Keep routers thin and business logic inside services.
-
 
