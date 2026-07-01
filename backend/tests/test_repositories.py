@@ -55,6 +55,34 @@ async def test_user_repository_lists_with_filters_search_and_pagination() -> Non
 
 
 @pytest.mark.asyncio
+async def test_user_repository_finds_names_for_ids_in_one_query() -> None:
+    first_id = ObjectId()
+    second_id = ObjectId()
+    cursor = MagicMock()
+    cursor.to_list = AsyncMock(
+        return_value=[
+            {"_id": first_id, "name": "Entry Guard"},
+            {"_id": second_id, "name": "Exit Guard"},
+        ]
+    )
+    collection = MagicMock()
+    collection.find.return_value = cursor
+    repository = UserRepository(collection)
+
+    result = await repository.find_names_by_ids(
+        {str(first_id), str(second_id)}
+    )
+
+    query, projection = collection.find.call_args.args
+    assert set(query["_id"]["$in"]) == {first_id, second_id}
+    assert projection == {"name": 1}
+    assert result == {
+        str(first_id): "Entry Guard",
+        str(second_id): "Exit Guard",
+    }
+
+
+@pytest.mark.asyncio
 async def test_audit_repository_only_inserts_and_lists_logs() -> None:
     collection = MagicMock()
     collection.insert_one = AsyncMock(

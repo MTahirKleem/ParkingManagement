@@ -5,6 +5,7 @@ export type Payment = {
   method: "cash";
   received: boolean;
   received_by: string;
+  received_by_name?: string | null;
   received_at: string;
 };
 
@@ -35,7 +36,9 @@ export type ParkingRecord = {
   ocr?: Record<string, unknown> | null;
   notes: string | null;
   created_by: string;
+  created_by_name?: string | null;
   completed_by: string | null;
+  completed_by_name?: string | null;
   updated_by: string | null;
   created_at: string;
   updated_at: string;

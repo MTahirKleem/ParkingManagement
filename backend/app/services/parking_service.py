@@ -12,6 +12,7 @@ from app.core.constants import (
     PaymentMethods,
 )
 from app.repositories.parking_repository import ParkingRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.common import AppException
 from app.schemas.parking import (
     ParkingEntryRequest,
@@ -31,6 +32,7 @@ class ParkingService:
         parking_repository: ParkingRepository | None = None,
         pricing_service: PricingService | None = None,
         audit_log_service: AuditLogService | None = None,
+        user_repository: UserRepository | None = None,
     ) -> None:
         self.parking_repository = (
             parking_repository
@@ -47,6 +49,42 @@ class ParkingService:
             if audit_log_service is not None
             else AuditLogService()
         )
+        self.user_repository = (
+            user_repository
+            if user_repository is not None
+            else UserRepository()
+        )
+
+    async def _serialize_records_with_user_names(
+        self, records: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        serialized = [serialize_document(record) for record in records]
+        user_ids: set[str] = set()
+        for record in serialized:
+            for field in ("created_by", "completed_by"):
+                if record.get(field):
+                    user_ids.add(record[field])
+            payment = record.get("payment")
+            if payment and payment.get("received_by"):
+                user_ids.add(payment["received_by"])
+
+        names = await self.user_repository.find_names_by_ids(user_ids)
+        for record in serialized:
+            record["created_by_name"] = names.get(record.get("created_by"))
+            record["completed_by_name"] = names.get(
+                record.get("completed_by")
+            )
+            payment = record.get("payment")
+            if payment is not None:
+                payment["received_by_name"] = names.get(
+                    payment.get("received_by")
+                )
+        return serialized
+
+    async def _serialize_record_with_user_names(
+        self, record: dict[str, Any]
+    ) -> dict[str, Any]:
+        return (await self._serialize_records_with_user_names([record]))[0]
 
     @staticmethod
     def _validate_id(record_id: str) -> None:
@@ -142,7 +180,7 @@ class ParkingService:
             },
             request_context=request_context,
         )
-        return serialize_document(record)
+        return await self._serialize_record_with_user_names(record)
 
     async def complete_exit(
         self,
@@ -215,17 +253,17 @@ class ParkingService:
             },
             request_context=request_context,
         )
-        return serialize_document(completed)
+        return await self._serialize_record_with_user_names(completed)
 
-    @staticmethod
-    def _list_result(
+    async def _list_result(
+        self,
         records: list[dict[str, Any]],
         page: int,
         limit: int,
         total: int,
     ) -> dict[str, Any]:
         return {
-            "data": [serialize_document(record) for record in records],
+            "data": await self._serialize_records_with_user_names(records),
             "pagination": {
                 "page": page,
                 "limit": limit,
@@ -253,7 +291,7 @@ class ParkingService:
         total = await self.parking_repository.count_active(
             repository_filters
         )
-        return self._list_result(records, page, limit, total)
+        return await self._list_result(records, page, limit, total)
 
     @staticmethod
     def _utc_start(value: date) -> datetime:
@@ -289,7 +327,7 @@ class ParkingService:
         total = await self.parking_repository.count_history(
             repository_filters
         )
-        return self._list_result(records, page, limit, total)
+        return await self._list_result(records, page, limit, total)
 
     async def search_records(
         self, plate_number: str, status: str | None
@@ -298,10 +336,10 @@ class ParkingService:
         records = await self.parking_repository.search_by_plate(
             normalized, status
         )
-        return [serialize_document(record) for record in records]
+        return await self._serialize_records_with_user_names(records)
 
     async def get_record_by_id(self, record_id: str) -> dict[str, Any]:
-        return serialize_document(
+        return await self._serialize_record_with_user_names(
             await self._get_visible_record(record_id)
         )
 
@@ -355,7 +393,7 @@ class ParkingService:
             },
             request_context=request_context,
         )
-        return serialize_document(updated)
+        return await self._serialize_record_with_user_names(updated)
 
     async def delete_record(
         self,

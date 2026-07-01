@@ -63,6 +63,13 @@ export const parkingUpdateSchema = z.object({
 
 type UpdateValues = z.infer<typeof parkingUpdateSchema>;
 
+export function displayUserName(
+  name: string | null | undefined,
+  id: string | null | undefined,
+) {
+  return name || id || "—";
+}
+
 function Detail({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
     <div className="space-y-1">
@@ -184,8 +191,16 @@ export function ParkingRecordDetails({ id }: { id: string }) {
             <Detail label="Duration" value={formatDuration(record.duration_minutes)} />
             <Detail label="Fee" value={formatCurrency(record.fee, record.currency)} />
             <Detail label="Currency" value={record.currency} />
-            <Detail label="Created by" value={record.created_by} mono />
-            <Detail label="Completed by" value={record.completed_by} mono />
+            <Detail
+              label="Created by"
+              value={displayUserName(record.created_by_name, record.created_by)}
+              mono={!record.created_by_name}
+            />
+            <Detail
+              label="Completed by"
+              value={displayUserName(record.completed_by_name, record.completed_by)}
+              mono={!record.completed_by_name}
+            />
             <Detail label="Created at" value={formatDate(record.created_at)} />
             <Detail label="Updated at" value={formatDate(record.updated_at)} />
             <div className="sm:col-span-2 lg:col-span-3"><Detail label="Notes" value={record.notes} /></div>
@@ -198,7 +213,14 @@ export function ParkingRecordDetails({ id }: { id: string }) {
               {record.payment ? <>
                 <Detail label="Method" value={record.payment.method} />
                 <Detail label="Received" value={record.payment.received ? "Yes" : "No"} />
-                <Detail label="Received by" value={record.payment.received_by} mono />
+                <Detail
+                  label="Received by"
+                  value={displayUserName(
+                    record.payment.received_by_name,
+                    record.payment.received_by,
+                  )}
+                  mono={!record.payment.received_by_name}
+                />
                 <Detail label="Received at" value={formatDate(record.payment.received_at)} />
               </> : <p className="text-sm text-muted-foreground">Payment is recorded when the vehicle exits.</p>}
             </CardContent>

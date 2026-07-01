@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { vehicleEntrySchema } from "@/components/parking/VehicleEntryForm";
-import { parkingUpdateSchema } from "@/components/parking/ParkingRecordDetails";
+import {
+  displayUserName,
+  parkingUpdateSchema,
+} from "@/components/parking/ParkingRecordDetails";
 
 describe("parking forms", () => {
   it("requires a plate and supported vehicle type", () => {
@@ -36,5 +39,15 @@ describe("parking forms", () => {
         vehicle_type: "truck",
       }).success,
     ).toBe(false);
+  });
+
+  it("prefers a resolved user name and falls back to the audit ID", () => {
+    expect(displayUserName("Entry Guard", "507f1f77bcf86cd799439011")).toBe(
+      "Entry Guard",
+    );
+    expect(displayUserName(null, "507f1f77bcf86cd799439011")).toBe(
+      "507f1f77bcf86cd799439011",
+    );
+    expect(displayUserName(null, null)).toBe("—");
   });
 });

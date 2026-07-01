@@ -58,11 +58,15 @@ def make_record(**overrides):
     return record
 
 
-def make_service(repository=None, pricing=None, audit=None):
+def make_service(repository=None, pricing=None, audit=None, users=None):
+    user_repository = users or AsyncMock()
+    if users is None:
+        user_repository.find_names_by_ids.return_value = {}
     return ParkingService(
         repository or AsyncMock(),
         pricing or AsyncMock(),
         audit or AsyncMock(),
+        user_repository=user_repository,
     )
 
 
@@ -252,6 +256,39 @@ async def test_search_and_detail_hide_deleted_records() -> None:
     with pytest.raises(AppException) as deleted:
         await service.get_record_by_id(str(ObjectId()))
     assert deleted.value.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_parking_detail_resolves_user_names_with_missing_user_fallback() -> None:
+    creator_id = ObjectId()
+    receiver_id = ObjectId()
+    record = make_record(
+        status=ParkingStatus.COMPLETED,
+        created_by=creator_id,
+        completed_by=receiver_id,
+        payment={
+            "method": "cash",
+            "received": True,
+            "received_by": receiver_id,
+            "received_at": datetime(2026, 6, 29, 12, 0, tzinfo=timezone.utc),
+        },
+    )
+    repository = AsyncMock()
+    repository.find_by_id.return_value = record
+    users = AsyncMock()
+    users.find_names_by_ids.return_value = {
+        str(creator_id): "Entry Guard",
+    }
+    service = make_service(repository=repository, users=users)
+
+    result = await service.get_record_by_id(str(record["_id"]))
+
+    users.find_names_by_ids.assert_awaited_once_with(
+        {str(creator_id), str(receiver_id)}
+    )
+    assert result["created_by_name"] == "Entry Guard"
+    assert result["completed_by_name"] is None
+    assert result["payment"]["received_by_name"] is None
 
 
 @pytest.mark.asyncio

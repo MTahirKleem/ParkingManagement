@@ -59,6 +59,7 @@ class PaymentResponse(BaseModel):
     method: Literal[PaymentMethods.CASH]
     received: bool
     received_by: str
+    received_by_name: str | None = None
     received_at: datetime
 
 
@@ -81,6 +82,8 @@ class ParkingRecordResponse(BaseModel):
     created_by: str
     completed_by: str | None = None
     updated_by: str | None = None
+    created_by_name: str | None = None
+    completed_by_name: str | None = None
     created_at: datetime
     updated_at: datetime
 

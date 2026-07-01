@@ -38,6 +38,7 @@ def record(record_id=None, status="active"):
                 "method": "cash",
                 "received": True,
                 "received_by": str(ObjectId()),
+                "received_by_name": "Exit Guard",
                 "received_at": now,
             }
             if status == "completed"
@@ -59,7 +60,9 @@ def record(record_id=None, status="active"):
         "ocr": None,
         "notes": None,
         "created_by": str(ObjectId()),
+        "created_by_name": "Entry Guard",
         "completed_by": None,
+        "completed_by_name": None,
         "updated_by": None,
         "created_at": now,
         "updated_at": now,
@@ -192,6 +195,11 @@ def test_admin_can_use_all_parking_routes() -> None:
     ]
     assert all(response.json()["success"] is True for response in responses)
     assert responses[1].json()["data"]["payment"]["method"] == "cash"
+    assert (
+        responses[1].json()["data"]["payment"]["received_by_name"]
+        == "Exit Guard"
+    )
+    assert responses[0].json()["data"]["created_by_name"] == "Entry Guard"
     assert responses[7].json()["data"]["status"] == "deleted"
 
 

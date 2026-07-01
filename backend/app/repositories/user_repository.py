@@ -6,7 +6,7 @@ from pymongo import ReturnDocument
 from app.core.constants import Collections, UserStatus
 from app.database.mongodb import get_collection
 from app.utils.datetime import utc_now
-from app.utils.object_id import to_object_id
+from app.utils.object_id import is_valid_object_id, to_object_id
 
 
 class UserRepository:
@@ -22,6 +22,27 @@ class UserRepository:
 
     async def find_by_id(self, user_id: str) -> dict[str, Any] | None:
         return await self.collection.find_one({"_id": to_object_id(user_id)})
+
+    async def find_names_by_ids(
+        self, user_ids: set[str]
+    ) -> dict[str, str]:
+        object_ids = [
+            to_object_id(user_id)
+            for user_id in user_ids
+            if is_valid_object_id(user_id)
+        ]
+        if not object_ids:
+            return {}
+        cursor = self.collection.find(
+            {"_id": {"$in": object_ids}},
+            {"name": 1},
+        )
+        users = await cursor.to_list(length=len(object_ids))
+        return {
+            str(user["_id"]): user["name"]
+            for user in users
+            if user.get("name")
+        }
 
     async def create_user(self, data: dict[str, Any]) -> dict[str, Any]:
         result = await self.collection.insert_one(data)
