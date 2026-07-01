@@ -718,6 +718,7 @@ Response:
     "entry_time": "2026-06-29T10:00:00Z",
     "status": "active",
     "created_by": "66a000000000000000000002",
+    "created_by_name": "Entry Guard",
     "created_at": "2026-06-29T10:00:00Z"
   }
 }
@@ -776,6 +777,7 @@ Response:
       "method": "cash",
       "received": true,
       "received_by": "66a000000000000000000002",
+      "received_by_name": "Exit Guard",
       "received_at": "2026-06-29T12:16:00Z"
     }
   }
@@ -989,10 +991,13 @@ Response:
       "method": "cash",
       "received": true,
       "received_by": "66a000000000000000000002",
+      "received_by_name": "Exit Guard",
       "received_at": "2026-06-29T13:31:00Z"
     },
     "created_by": "66a000000000000000000002",
+    "created_by_name": "Entry Guard",
     "completed_by": "66a000000000000000000002",
+    "completed_by_name": "Exit Guard",
     "created_at": "2026-06-29T10:00:00Z",
     "updated_at": "2026-06-29T13:31:00Z"
   }
