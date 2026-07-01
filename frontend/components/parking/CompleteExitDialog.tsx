@@ -1,6 +1,7 @@
 "use client";
 
 import { Banknote, CheckCircle2, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -33,6 +34,7 @@ export function CompleteExitDialog({
   const [cashReceived, setCashReceived] = useState(false);
   const [completed, setCompleted] = useState<ParkingRecord | null>(null);
   const mutation = useCompleteExit();
+  const queryClient = useQueryClient();
 
   const complete = async () => {
     if (!cashReceived) return;
@@ -54,6 +56,9 @@ export function CompleteExitDialog({
       onOpenChange={(next) => {
         setOpen(next);
         if (!next) {
+          if (completed) {
+            void queryClient.invalidateQueries({ queryKey: ["active-vehicles"] });
+          }
           setCashReceived(false);
           setCompleted(null);
           mutation.reset();

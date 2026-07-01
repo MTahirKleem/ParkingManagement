@@ -24,6 +24,8 @@ The interface is a restrained operational dashboard: warm off-white canvas, deep
 
 Desktop uses a fixed sidebar and content header. Mobile uses a compact header and sheet navigation, stacked filters, horizontally scrollable tables, and full-width operational buttons.
 
+The browser favicon uses the same teal field and a high-contrast white parking “P” mark so the application remains identifiable at small tab and shortcut sizes.
+
 ## Authentication and Routing
 
 `parkingmanagement_access_token` is the sole browser token key. On startup, a present token triggers `/auth/me`; failure clears auth and redirects to login. Login stores the token and user, then routes Admin to `/dashboard` and Guard to `/parking/entry`. Root and login routes use the same role-aware redirect rules.
@@ -34,7 +36,7 @@ Admin navigation includes Guards. Guard navigation omits it. Direct Guard access
 
 Vehicle Entry uses React Hook Form and Zod, displays backend errors, resets after success, and links to Active Vehicles.
 
-Active Vehicles supports search, vehicle type, pagination, refresh, details, and explicit cash-confirmed exit. A completed exit displays duration and fee and invalidates active/history/detail queries.
+Active Vehicles supports search, vehicle type, pagination, refresh, details, and explicit cash-confirmed exit. A completed exit displays duration and fee, refreshes history/detail data immediately, and refreshes the active list when the result dialog closes.
 
 Search accepts all plate formats and optional status. History supports the complete backend filter set. Both use responsive tables with loading, error, empty, and refresh states.
 

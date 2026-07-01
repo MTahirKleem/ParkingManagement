@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -73,10 +73,13 @@ export function VehicleEntryForm() {
         <Alert>
           <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
             <span>{success}</span>
-            <Button nativeButton={false} size="sm" variant="outline" render={<Link href="/parking/active" />}>
+            <Link
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              href="/parking/active"
+            >
               View active vehicles
               <ArrowRight />
-            </Button>
+            </Link>
           </AlertDescription>
         </Alert>
       ) : null}
@@ -119,7 +122,11 @@ export function VehicleEntryForm() {
           <Input id="slot" className="h-11" placeholder="A-12" {...register("slot")} />
         </div>
       </div>
-      <Button className="h-12 w-full text-base sm:w-auto sm:min-w-52" disabled={mutation.isPending}>
+      <Button
+        className="h-12 w-full text-base sm:w-auto sm:min-w-52"
+        disabled={mutation.isPending}
+        type="submit"
+      >
         {mutation.isPending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
         {mutation.isPending ? "Saving entry…" : "Create vehicle entry"}
       </Button>

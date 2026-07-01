@@ -3,7 +3,7 @@
 import { ShieldX } from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import type { UserRole } from "@/types/auth";
@@ -27,9 +27,9 @@ export function RoleGuard({
               You do not have permission to perform this action.
             </p>
           </div>
-          <Button nativeButton={false} render={<Link href="/parking/entry" />}>
+          <Link className={buttonVariants()} href="/parking/entry">
             Return to vehicle entry
-          </Button>
+          </Link>
         </CardContent>
       </Card>
     );

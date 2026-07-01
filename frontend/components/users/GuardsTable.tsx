@@ -47,19 +47,21 @@ import type { UserStatus } from "@/types/auth";
 import type { User } from "@/types/user";
 
 function DeleteGuard({ user }: { user: User }) {
+  const [open, setOpen] = useState(false);
   const mutation = useDeleteUser();
 
   const remove = async () => {
     try {
       await mutation.mutateAsync(user.id);
       toast.success("Guard deleted");
+      setOpen(false);
     } catch (error) {
       toast.error(getApiErrorMessage(error));
     }
   };
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger render={<Button aria-label={`Delete ${user.name}`} size="icon-sm" variant="ghost" />}>
         <Trash2 className="text-destructive" />
       </AlertDialogTrigger>

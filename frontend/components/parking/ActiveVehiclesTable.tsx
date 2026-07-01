@@ -10,7 +10,7 @@ import { LoadingState } from "@/components/common/LoadingState";
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { CompleteExitDialog } from "@/components/parking/CompleteExitDialog";
 import { ParkingStatusBadge } from "@/components/parking/ParkingStatusBadge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -113,10 +113,13 @@ export function ActiveVehiclesTable() {
                     <TableCell className="font-mono text-xs">{record.created_by.slice(-8)}</TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Button nativeButton={false} size="sm" variant="outline" render={<Link href={`/parking/${record.id}`} />}>
+                        <Link
+                          className={buttonVariants({ size: "sm", variant: "outline" })}
+                          href={`/parking/${record.id}`}
+                        >
                           <Eye />
                           Details
-                        </Button>
+                        </Link>
                         <CompleteExitDialog record={record} />
                       </div>
                     </TableCell>

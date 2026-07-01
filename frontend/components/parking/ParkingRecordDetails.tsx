@@ -105,21 +105,21 @@ function EditDialog({ record, defaultOpen }: { record: ParkingRecord; defaultOpe
           <DialogDescription>Only correction fields are available in the MVP.</DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={handleSubmit(submit)}>
-          <div className="space-y-2"><Label>Plate number</Label><Input {...register("plate_number")} /></div>
+          <div className="space-y-2"><Label htmlFor="edit-plate-number">Plate number</Label><Input id="edit-plate-number" {...register("plate_number")} /></div>
           <div className="space-y-2">
-            <Label>Vehicle type</Label>
+            <Label htmlFor="edit-vehicle-type">Vehicle type</Label>
             <Controller name="vehicle_type" control={control} render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full" id="edit-vehicle-type"><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="bike">Bike</SelectItem><SelectItem value="car">Car</SelectItem></SelectContent>
               </Select>
             )} />
           </div>
-          <div className="space-y-2"><Label>Slot</Label><Input {...register("slot")} /></div>
-          <div className="space-y-2"><Label>Notes</Label><Textarea {...register("notes")} /></div>
+          <div className="space-y-2"><Label htmlFor="edit-slot">Slot</Label><Input id="edit-slot" {...register("slot")} /></div>
+          <div className="space-y-2"><Label htmlFor="edit-notes">Notes</Label><Textarea id="edit-notes" {...register("notes")} /></div>
           {mutation.error ? <p className="text-sm text-destructive">{getApiErrorMessage(mutation.error)}</p> : null}
           <DialogFooter>
-            <Button disabled={mutation.isPending}>{mutation.isPending ? <Loader2 className="animate-spin" /> : <Pencil />} Save changes</Button>
+            <Button disabled={mutation.isPending} type="submit">{mutation.isPending ? <Loader2 className="animate-spin" /> : <Pencil />} Save changes</Button>
           </DialogFooter>
         </form>
       </DialogContent>

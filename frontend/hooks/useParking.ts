@@ -74,7 +74,6 @@ export function useCompleteExit() {
       paymentReceived: boolean;
     }) => parkingService.completeExit(recordId, paymentReceived),
     onSuccess: async (_, variables) => {
-      await client.invalidateQueries({ queryKey: ["active-vehicles"] });
       await client.invalidateQueries({ queryKey: ["parking-history"] });
       await client.invalidateQueries({
         queryKey: parkingKeys.record(variables.recordId),
@@ -108,10 +107,9 @@ export function useDeleteParkingRecord() {
   return useMutation({
     mutationFn: (recordId: string) =>
       parkingService.deleteParkingRecord(recordId),
-    onSuccess: async (_, recordId) => {
+    onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ["parking-history"] });
       await client.invalidateQueries({ queryKey: ["active-vehicles"] });
-      client.removeQueries({ queryKey: parkingKeys.record(recordId) });
     },
   });
 }

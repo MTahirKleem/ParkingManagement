@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ParkingStatusBadge } from "@/components/parking/ParkingStatusBadge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,7 +84,7 @@ export function ParkingSearchForm() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="self-end" disabled={!plate.trim()}>
+            <Button className="self-end" disabled={!plate.trim()} type="submit">
               <Search />
               Search
             </Button>
@@ -125,10 +125,13 @@ export function ParkingSearchForm() {
                     <TableCell><ParkingStatusBadge status={record.status} /></TableCell>
                     <TableCell>{formatCurrency(record.fee, record.currency)}</TableCell>
                     <TableCell className="text-right">
-                      <Button nativeButton={false} size="sm" variant="outline" render={<Link href={`/parking/${record.id}`} />}>
+                      <Link
+                        className={buttonVariants({ size: "sm", variant: "outline" })}
+                        href={`/parking/${record.id}`}
+                      >
                         <Eye />
                         Details
-                      </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

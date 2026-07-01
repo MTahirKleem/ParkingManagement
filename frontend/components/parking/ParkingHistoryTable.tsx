@@ -9,7 +9,7 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { ParkingStatusBadge } from "@/components/parking/ParkingStatusBadge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -119,13 +119,19 @@ export function ParkingHistoryTable() {
                     <TableCell><ParkingStatusBadge status={record.status} /></TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Button nativeButton={false} size="sm" variant="outline" render={<Link href={`/parking/${record.id}`} />}>
+                        <Link
+                          className={buttonVariants({ size: "sm", variant: "outline" })}
+                          href={`/parking/${record.id}`}
+                        >
                           <Eye /> View
-                        </Button>
+                        </Link>
                         {user?.role === "admin" ? (
-                          <Button nativeButton={false} size="sm" variant="ghost" render={<Link href={`/parking/${record.id}?edit=1`} />}>
+                          <Link
+                            className={buttonVariants({ size: "sm", variant: "ghost" })}
+                            href={`/parking/${record.id}?edit=1`}
+                          >
                             <Settings2 /> Manage
-                          </Button>
+                          </Link>
                         ) : null}
                       </div>
                     </TableCell>
